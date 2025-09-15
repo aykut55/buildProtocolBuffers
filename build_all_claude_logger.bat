@@ -16,6 +16,10 @@ echo ==========================================
 set USE_EXTERNAL_ABSEIL=OFF    
 set BUILD_SHARED_LIBS=OFF      
 
+:: Mimari Seçimi (Default: Sadece x64)
+:: ALL=Her ikisi, X64=Sadece x64, WIN32=Sadece Win32
+set BUILD_ARCHITECTURE=X64     
+
 :: Hata Handling (Default: Devam et)
 set STOP_ON_ABSEIL_ERROR=OFF   
 set STOP_ON_PROTOBUF_ERROR=OFF 
@@ -38,6 +42,7 @@ echo   BUILD CONFIGURATION
 echo ==========================================
 echo - External Abseil: %USE_EXTERNAL_ABSEIL% (ON=External, OFF=Module)
 echo - Library Type: %BUILD_SHARED_LIBS% (ON=DLL, OFF=Static)
+echo - Build Architecture: %BUILD_ARCHITECTURE% (ALL=Both, X64=Only x64, WIN32=Only Win32)
 echo - Stop on Abseil Error: %STOP_ON_ABSEIL_ERROR%
 echo - Stop on ProtoBuf Error: %STOP_ON_PROTOBUF_ERROR%
 echo - Clean Abseil Builds: %CLEAN_ABSEIL_BUILDS%
@@ -62,41 +67,104 @@ if "%USE_EXTERNAL_ABSEIL%"=="ON" (
     echo ==========================================
     echo   Building External Abseil
     echo ==========================================
-    call :buildAbseilWithLog x64 Release
-    call :buildAbseilWithLog x64 Debug
-    call :buildAbseilWithLog Win32 Release
-    call :buildAbseilWithLog Win32 Debug
+    
+    :: x64 Abseil builds
+    if "%BUILD_ARCHITECTURE%"=="ALL" (
+        call :buildAbseilWithLog x64 Release
+        call :buildAbseilWithLog x64 Debug
+    )
+    if "%BUILD_ARCHITECTURE%"=="X64" (
+        call :buildAbseilWithLog x64 Release
+        call :buildAbseilWithLog x64 Debug
+    )
+    
+    :: Win32 Abseil builds
+    if "%BUILD_ARCHITECTURE%"=="ALL" (
+        call :buildAbseilWithLog Win32 Release
+        call :buildAbseilWithLog Win32 Debug
+    )
+    if "%BUILD_ARCHITECTURE%"=="WIN32" (
+        call :buildAbseilWithLog Win32 Release
+        call :buildAbseilWithLog Win32 Debug
+    )
     echo.
 )
 
-:: Build ProtoBuf for all configurations
+:: Build ProtoBuf for selected architectures
 echo ==========================================
-echo   Building ProtoBuf - All Configurations
+if "%BUILD_ARCHITECTURE%"=="ALL" (
+    echo   Building ProtoBuf - All Architectures
+) else if "%BUILD_ARCHITECTURE%"=="X64" (
+    echo   Building ProtoBuf - x64 Only
+) else if "%BUILD_ARCHITECTURE%"=="WIN32" (
+    echo   Building ProtoBuf - Win32 Only
+) else (
+    echo   Building ProtoBuf - x64 Only (default)
+    set BUILD_ARCHITECTURE=X64
+)
 echo ==========================================
-call :buildProtoBufWithLog x64 Release LIB
-	echo [INFO] Waiting 5 seconds before next build...
-	timeout /t 5 /nobreak >nul
-call :buildProtoBufWithLog x64 Release DLL
-	echo [INFO] Waiting 5 seconds before next build...
-	timeout /t 5 /nobreak >nul
-call :buildProtoBufWithLog x64 Debug LIB
-	echo [INFO] Waiting 5 seconds before next build...
-	timeout /t 5 /nobreak >nul  
-call :buildProtoBufWithLog x64 Debug DLL
-	echo [INFO] Waiting 5 seconds before next build...
-	timeout /t 5 /nobreak >nul
-call :buildProtoBufWithLog Win32 Release LIB
-	echo [INFO] Waiting 5 seconds before next build...
-	timeout /t 5 /nobreak >nul
-call :buildProtoBufWithLog Win32 Release DLL
-	echo [INFO] Waiting 5 seconds before next build...
-	timeout /t 5 /nobreak >nul
-call :buildProtoBufWithLog Win32 Debug LIB
-	echo [INFO] Waiting 5 seconds before next build...
-	timeout /t 5 /nobreak >nul
-call :buildProtoBufWithLog Win32 Debug DLL
-	echo [INFO] Waiting 5 seconds before next build...
-	timeout /t 5 /nobreak >nul
+
+:: x64 builds
+if "%BUILD_ARCHITECTURE%"=="ALL" (
+    call :buildProtoBufWithLog x64 Release LIB
+    echo [INFO] Waiting 5 seconds before next build...
+    timeout /t 5 /nobreak >nul
+    call :buildProtoBufWithLog x64 Release DLL
+    echo [INFO] Waiting 5 seconds before next build...
+    timeout /t 5 /nobreak >nul
+    call :buildProtoBufWithLog x64 Debug LIB
+    echo [INFO] Waiting 5 seconds before next build...
+    timeout /t 5 /nobreak >nul  
+    call :buildProtoBufWithLog x64 Debug DLL
+    echo [INFO] Waiting 5 seconds before next build...
+    timeout /t 5 /nobreak >nul
+)
+
+if "%BUILD_ARCHITECTURE%"=="X64" (
+    call :buildProtoBufWithLog x64 Release LIB
+    echo [INFO] Waiting 5 seconds before next build...
+    timeout /t 5 /nobreak >nul
+    call :buildProtoBufWithLog x64 Release DLL
+    echo [INFO] Waiting 5 seconds before next build...
+    timeout /t 5 /nobreak >nul
+    call :buildProtoBufWithLog x64 Debug LIB
+    echo [INFO] Waiting 5 seconds before next build...
+    timeout /t 5 /nobreak >nul  
+    call :buildProtoBufWithLog x64 Debug DLL
+    echo [INFO] Waiting 5 seconds before next build...
+    timeout /t 5 /nobreak >nul
+)
+
+:: Win32 builds
+if "%BUILD_ARCHITECTURE%"=="ALL" (
+    call :buildProtoBufWithLog Win32 Release LIB
+    echo [INFO] Waiting 5 seconds before next build...
+    timeout /t 5 /nobreak >nul
+    call :buildProtoBufWithLog Win32 Release DLL
+    echo [INFO] Waiting 5 seconds before next build...
+    timeout /t 5 /nobreak >nul
+    call :buildProtoBufWithLog Win32 Debug LIB
+    echo [INFO] Waiting 5 seconds before next build...
+    timeout /t 5 /nobreak >nul
+    call :buildProtoBufWithLog Win32 Debug DLL
+    echo [INFO] Waiting 5 seconds before next build...
+    timeout /t 5 /nobreak >nul
+)
+
+if "%BUILD_ARCHITECTURE%"=="WIN32" (
+    call :buildProtoBufWithLog Win32 Release LIB
+    echo [INFO] Waiting 5 seconds before next build...
+    timeout /t 5 /nobreak >nul
+    call :buildProtoBufWithLog Win32 Release DLL
+    echo [INFO] Waiting 5 seconds before next build...
+    timeout /t 5 /nobreak >nul
+    call :buildProtoBufWithLog Win32 Debug LIB
+    echo [INFO] Waiting 5 seconds before next build...
+    timeout /t 5 /nobreak >nul
+    call :buildProtoBufWithLog Win32 Debug DLL
+    echo [INFO] Waiting 5 seconds before next build...
+    timeout /t 5 /nobreak >nul
+)
 
 :: Organize output files
 echo ==========================================

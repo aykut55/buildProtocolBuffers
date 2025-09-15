@@ -15,13 +15,18 @@ Bu dokümanda Google ProtoBuf projesini Visual Studio 2022 ile derlemek için ge
 
 ## 🎯 Proje Hakkında
 
-Bu proje Google ProtoBuf kütüphanesini **8 farklı konfigürasyonda** derleyerek Visual Studio projelerinde kullanıma hazır hale getirir:
+Bu proje Google ProtoBuf kütüphanesini **seçilen mimariler için** derleyerek Visual Studio projelerinde kullanıma hazır hale getirir:
 
 ### Desteklenen Konfigürasyonlar:
-- **Mimariler**: x64, Win32
+- **Mimariler**: x64, Win32 (seçilebilir)
 - **Build Modları**: Debug, Release
 - **Library Türleri**: Static (.lib), Dynamic (.dll)
-- **Toplam**: 2 × 2 × 2 = **8 farklı build**
+- **Toplam**: Seçilen mimariye göre **4 veya 8 farklı build**
+
+### Mimari Seçimi (Yeni!):
+- **X64 Only** (default): Sadece x64 → 4 build (daha hızlı)
+- **Win32 Only**: Sadece Win32 → 4 build
+- **ALL**: Her iki mimari → 8 build (tam kapsamlı)
 
 ### Abseil Desteği:
 - **Dahili Abseil**: ProtoBuf'un kendi Abseil modülü (varsayılan)
@@ -118,11 +123,13 @@ build_all_claude_logger.bat
 ## 🔧 Build Script Özeti: build_all_claude_logger.bat
 
 ### Ana Özellikler:
-- **8 farklı ProtoBuf konfigürasyonu** otomatik build'i
+- **Seçilebilir mimari desteği** (x64/Win32/ALL)
+- **4-8 farklı ProtoBuf konfigürasyonu** otomatik build'i
 - **Renkli ekran çıktısı** (PASSED=Yeşil, FAILED=Kırmızı)
 - **Detaylı log dosyası** oluşturma
 - **Visual Studio uyumlu** çıktı organizasyonu
 - **Hata handling** ve devam etme seçenekleri
+- **Hızlı build seçenekleri** (sadece ihtiyacınız olan mimari)
 
 ### Konfigürasyon Seçenekleri:
 
@@ -130,6 +137,7 @@ build_all_claude_logger.bat
 ```batch
 set USE_EXTERNAL_ABSEIL=OFF    # ON=Harici Abseil | OFF=Dahili Abseil
 set BUILD_SHARED_LIBS=OFF      # Script'te kullanılmıyor (her tür build edilir)
+set BUILD_ARCHITECTURE=X64     # ALL=Her ikisi, X64=Sadece x64, WIN32=Sadece Win32
 ```
 
 #### Hata Yönetimi:
@@ -138,6 +146,14 @@ set STOP_ON_ABSEIL_ERROR=OFF   # ON=Hata durumunda dur | OFF=Devam et
 set STOP_ON_PROTOBUF_ERROR=OFF # ON=Hata durumunda dur | OFF=Devam et
 set STOP_ON_COPY_ERROR=OFF     # ON=Hata durumunda dur | OFF=Devam et
 ```
+
+#### Mimari Seçimi:
+```batch
+set BUILD_ARCHITECTURE=X64     # Hangi mimariler build edilsin?
+```
+- **`BUILD_ARCHITECTURE=X64`** (default): Sadece x64 build'leri (4 konfigürasyon)
+- **`BUILD_ARCHITECTURE=WIN32`**: Sadece Win32 build'leri (4 konfigürasyon)
+- **`BUILD_ARCHITECTURE=ALL`**: Her iki mimari (8 konfigürasyon)
 
 #### Build Temizlik:
 ```batch
@@ -374,8 +390,10 @@ C:\protobuf\protobuf-builds\
 ## ⏱️ Performans Bilgileri
 
 ### Build Süreleri (yaklaşık):
-- **İlk build**: 20-45 dakika (internet + build)
-- **İncremental build**: 5-15 dakita (sadece build)
+- **İlk build**: 20-45 dakika (internet + build) - 8 konfigürasyon
+- **x64 only build**: 10-22 dakika (internet + build) - 4 konfigürasyon
+- **Win32 only build**: 10-22 dakika (internet + build) - 4 konfigürasyon
+- **İncremental build**: 5-15 dakika (sadece build)
 - **Temiz build**: 15-30 dakika (clean + build)
 
 ### Disk Kullanımı:
