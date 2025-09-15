@@ -1,0 +1,81 @@
+@echo off
+setlocal enabledelayedexpansion
+
+echo ==========================================
+echo   TEST: Win32 Debug LIB Build Only
+echo ==========================================
+
+:: Configuration
+set VSVERSION=Visual Studio 17 2022
+set PROTOBUF_SRC=C:\protobuf\protobuf321
+set PROTOBUF_BUILD_DIR=C:\protobuf\protobuf-builds\Win32-Debug-LIB-TEST
+
+echo Testing Win32 Debug LIB build...
+echo Build directory: %PROTOBUF_BUILD_DIR%
+
+:: Clean and create directory
+if exist "%PROTOBUF_BUILD_DIR%" rmdir /s /q "%PROTOBUF_BUILD_DIR%"
+mkdir "%PROTOBUF_BUILD_DIR%"
+
+cd /d "%PROTOBUF_BUILD_DIR%"
+
+echo.
+echo ==========================================
+echo   CMake Configuration
+echo ==========================================
+
+:: CMake configuration for Static LIB
+cmake -G "%VSVERSION%" -A Win32 ^
+    -DCMAKE_CXX_STANDARD=17 ^
+    -Dprotobuf_BUILD_TESTS=OFF ^
+    -Dprotobuf_BUILD_EXAMPLES=OFF ^
+    -Dprotobuf_WITH_ZLIB=OFF ^
+    -Dprotobuf_ABSL_PROVIDER=module ^
+    -Dprotobuf_DISABLE_RTTI=OFF ^
+    -Dprotobuf_BUILD_PROTOC_BINARIES=ON ^
+    -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDebugDLL ^
+    -DBUILD_SHARED_LIBS=OFF ^
+    -Dprotobuf_BUILD_SHARED_LIBS=OFF ^
+    "%PROTOBUF_SRC%"
+
+if errorlevel 1 (
+    echo.
+    echo ==========================================
+    echo   CONFIGURATION FAILED!
+    echo ==========================================
+    echo.
+    if exist "CMakeFiles\CMakeError.log" (
+        echo CMake Error Log:
+        type "CMakeFiles\CMakeError.log"
+    )
+) else (
+    echo.
+    echo ==========================================
+    echo   CONFIGURATION SUCCESSFUL!
+    echo ==========================================
+    echo Now building...
+    
+    cmake --build . --config Debug --parallel
+    
+    if errorlevel 1 (
+        echo.
+        echo ==========================================
+        echo   BUILD FAILED!
+        echo ==========================================
+    ) else (
+        echo.
+        echo ==========================================
+        echo   BUILD SUCCESSFUL!
+        echo ==========================================
+        echo.
+        echo Generated files:
+        dir Debug\*.lib /b 2>nul
+        dir Debug\*.exe /b 2>nul
+    )
+)
+
+echo.
+pause
+
+cd /d C:\protobuf
+endlocal
