@@ -73,14 +73,30 @@ if "%USE_EXTERNAL_ABSEIL%"=="ON" (
 echo ==========================================
 echo   Building ProtoBuf - All Configurations
 echo ==========================================
-call :buildProtoBufWithLog x64 Release LIB   
+call :buildProtoBufWithLog x64 Release LIB
+	echo [INFO] Waiting 5 seconds before next build...
+	timeout /t 5 /nobreak >nul
 call :buildProtoBufWithLog x64 Release DLL
-call :buildProtoBufWithLog x64 Debug LIB    
+	echo [INFO] Waiting 5 seconds before next build...
+	timeout /t 5 /nobreak >nul
+call :buildProtoBufWithLog x64 Debug LIB
+	echo [INFO] Waiting 5 seconds before next build...
+	timeout /t 5 /nobreak >nul  
 call :buildProtoBufWithLog x64 Debug DLL
+	echo [INFO] Waiting 5 seconds before next build...
+	timeout /t 5 /nobreak >nul
 call :buildProtoBufWithLog Win32 Release LIB
+	echo [INFO] Waiting 5 seconds before next build...
+	timeout /t 5 /nobreak >nul
 call :buildProtoBufWithLog Win32 Release DLL
+	echo [INFO] Waiting 5 seconds before next build...
+	timeout /t 5 /nobreak >nul
 call :buildProtoBufWithLog Win32 Debug LIB
+	echo [INFO] Waiting 5 seconds before next build...
+	timeout /t 5 /nobreak >nul
 call :buildProtoBufWithLog Win32 Debug DLL
+	echo [INFO] Waiting 5 seconds before next build...
+	timeout /t 5 /nobreak >nul
 
 :: Organize output files
 echo ==========================================
@@ -252,6 +268,11 @@ if not exist "%PROTOBUF_SRC%" (
 
 :: Clean build directory if requested
 if "%CLEAN_PROTOBUF_BUILDS%"=="ON" (
+    if exist "%PROTOBUF_BUILD_DIR%" rmdir /s /q "%PROTOBUF_BUILD_DIR%"
+)
+
+:: Always ensure clean build for DLL to avoid cache conflicts
+if "%LIBTYPE%"=="DLL" (
     if exist "%PROTOBUF_BUILD_DIR%" rmdir /s /q "%PROTOBUF_BUILD_DIR%"
 )
 
